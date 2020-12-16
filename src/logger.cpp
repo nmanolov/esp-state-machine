@@ -1,6 +1,12 @@
 #include <Arduino.h>
 #include <logger.h>
 
+SerialLogger::~SerialLogger() {}
+void SerialLogger::setUp() {
+  Serial.begin(9600);
+}
+void SerialLogger::tick() {}
+
 bool SerialLogger::print(const char *arg) { return Serial.print(arg); }
 
 bool SerialLogger::println(const char *arg) { return Serial.println(arg); }
@@ -17,13 +23,18 @@ bool SerialLogger::println(unsigned int number, int base) {
 bool SerialLogger::printf(const char *format, ...) {
   va_list args;
   va_start(args, format);
-  return Serial.printf(format, args);
+  auto res = Serial.printf(format, args);
   va_end(args);
+  return res;
 }
 
 bool SerialLogger::println(void) { return Serial.println(); }
 
 bool SerialLogger::println(const Printable &p) { return Serial.println(p); }
+
+ActualLogger::~ActualLogger() {}
+void ActualLogger::setUp() {}
+void ActualLogger::tick() {}
 
 bool ActualLogger::println(const char *word) {
   for (auto logger : innerLoggers) {

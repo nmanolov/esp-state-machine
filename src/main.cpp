@@ -16,6 +16,7 @@
 #include <logger.h>
 #include <n_state.h>
 #include <ota.h>
+#include <telnet_logger.h>
 
 #include "pitches.h"
 
@@ -44,15 +45,15 @@ TS_Context ts_context(D6);
 TemperatureSensor sensor(ts_context);
 OutputPin relayPin(D7);
 
-// Thermostat thermostat(ts_context, sensor, relayPin, THERMOSTAT_THRESHOLD);
+Thermostat thermostat(ts_context, sensor, relayPin, THERMOSTAT_THRESHOLD);
 
 AsyncMqttClient client;
 // PlaybackSwitch ms(client, "playback", melody);
 // RepeatSwitch rs(client, "repeat", melody);
 
-// ThermostatSensor ts(client, THERMOSTAT_NAME, thermostat);
-PinSwitch ps(client, "led", LED_BUILTIN, true);
-std::list<Integration *> integrations = {&ps /*&ps, &ts, &ms, &rs*/};
+ThermostatSensor ts(client, THERMOSTAT_NAME, thermostat);
+// PinSwitch ps(client, "led", LED_BUILTIN, true);
+std::list<Integration *> integrations = {&ts /*&ps, &ts, &ms, &rs*/};
 WifiInfo wifiInfo = {WIFI_NETWORK, WIFI_AP_NAME, WIFI_PASSWORD};
 MqttClientInfo mqttClientInfo = {
     IPAddress(MQTT_BROCKER_ADDRESS),
@@ -83,17 +84,22 @@ OTA_Options otaOptions = {
 };
 OTA ota(ArduinoOTA, otaOptions);
 
+WiFiServer telnetServer(TELNET_PORT);
+TelnetLogger telnetLogger(telnetServer);
+SerialLogger serialLogger;
+
 Composition composition = {
     &wifiSm,
-    // &thermostat,
+    &thermostat,
+    &serialLogger,
     &ota,
+    &telnetLogger,
 };
 
-SerialLogger s;
 
 void setup() {
-  Logger.registerLogger(&s);
-  Serial.begin(9600);
+  Logger.registerLogger(&telnetLogger);
+  Logger.registerLogger(&serialLogger);
   composition.setUp();
 }
 void loop() { composition.tick(); }

@@ -119,11 +119,11 @@ TS_State *processing(TS_State *self, StateMachineHandle<TS_Context> &machine,
     wire.write(0xBE); // Read Scratchpad
 
     Logger.print("  Data = ");
-    Serial.print(present, HEX);
+    Logger.print(present, HEX);
     Logger.print(" ");
     for (byte i = 0; i < 9; i++) { // we need 9 bytes
       data[i] = wire.read();
-      Serial.print(data[i], HEX);
+      Logger.print(data[i], HEX);
       Logger.print(" ");
     }
     Logger.print(" CRC=");
