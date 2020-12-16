@@ -13,6 +13,7 @@
 #include <ESP8266WiFi.h>
 #include <composition.h>
 #include <list>
+#include <logger.h>
 #include <n_state.h>
 #include <ota.h>
 
@@ -43,15 +44,15 @@ TS_Context ts_context(D6);
 TemperatureSensor sensor(ts_context);
 OutputPin relayPin(D7);
 
-Thermostat thermostat(ts_context, sensor, relayPin, THERMOSTAT_THRESHOLD);
+// Thermostat thermostat(ts_context, sensor, relayPin, THERMOSTAT_THRESHOLD);
 
 AsyncMqttClient client;
 // PlaybackSwitch ms(client, "playback", melody);
 // RepeatSwitch rs(client, "repeat", melody);
 
-ThermostatSensor ts(client, THERMOSTAT_NAME, thermostat);
-// PinSwitch ps(client, "led", LED_BUILTIN, true);
-std::list<Integration *> integrations = {&ts /*&ps, &ts, &ms, &rs*/};
+// ThermostatSensor ts(client, THERMOSTAT_NAME, thermostat);
+PinSwitch ps(client, "led", LED_BUILTIN, true);
+std::list<Integration *> integrations = {&ps /*&ps, &ts, &ms, &rs*/};
 WifiInfo wifiInfo = {WIFI_NETWORK, WIFI_AP_NAME, WIFI_PASSWORD};
 MqttClientInfo mqttClientInfo = {
     IPAddress(MQTT_BROCKER_ADDRESS),
@@ -84,11 +85,14 @@ OTA ota(ArduinoOTA, otaOptions);
 
 Composition composition = {
     &wifiSm,
-    &thermostat,
+    // &thermostat,
     &ota,
 };
 
+SerialLogger s;
+
 void setup() {
+  Logger.registerLogger(&s);
   Serial.begin(9600);
   composition.setUp();
 }

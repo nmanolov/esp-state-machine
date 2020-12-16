@@ -1,5 +1,6 @@
 #include "mqtt_client_state_machine.h"
 #include <algorithm>
+#include <logger.h>
 
  ClientContext::ClientContext(
    AsyncMqttClient & pAsyncMqttClient,
@@ -22,8 +23,7 @@ unsigned int ClientContext::getTimeout() const {
 }
 
 ClientState * setupClient(ClientState * self, StateMachineHandle<ClientContext> & machine, const ClientSygnals & sygnal) {
-  Serial.print("setupClient: ");
-  Serial.println(sygnal);
+  Logger.printf("setupClient: %u\r\n", sygnal);
   ClientContext & context = machine.state;
   auto & mqttClient = context.mqttClient;
   auto & info = machine.state.mqttInfo;
@@ -44,12 +44,11 @@ ClientState * setupClient(ClientState * self, StateMachineHandle<ClientContext> 
 }
 
 ClientState * connecting(ClientState * self, StateMachineHandle<ClientContext> & machine, const ClientSygnals & sygnal) {
-  Serial.print("connecting: ");
-  Serial.println(sygnal);
+  Logger.printf("connecting: %d\n", sygnal);
   switch(sygnal) {
     case Initialize: {
-      Serial.print("Current timeout: ");
-      Serial.println(machine.state.getTimeout());
+      Logger.print("Current timeout: %u\n");
+      Logger.println(machine.state.getTimeout());
       machine.setStateTimeout(machine.state.getTimeout());
       return self;
     }
@@ -65,8 +64,7 @@ ClientState * connecting(ClientState * self, StateMachineHandle<ClientContext> &
 }
 
 ClientState * arbitraryDelay(ClientState * self, StateMachineHandle<ClientContext> & machine, const ClientSygnals & sygnal) {
-  Serial.print("arbitraryDelay: ");
-  Serial.println(sygnal);
+  Logger.printf("arbitraryDelay: %u\n", sygnal);
   
   switch(sygnal) {
     case Initialize:
@@ -80,8 +78,7 @@ ClientState * arbitraryDelay(ClientState * self, StateMachineHandle<ClientContex
 }
 
 ClientState * working(ClientState * self, StateMachineHandle<ClientContext> & machine, const ClientSygnals & sygnal) {
-  Serial.print("working: ");
-  Serial.println(sygnal);
+  Logger.printf("working: %u\n", sygnal);
   ClientContext & context = machine.state;
   switch(sygnal) {
     case Initialize: {
@@ -90,7 +87,7 @@ ClientState * working(ClientState * self, StateMachineHandle<ClientContext> & ma
       for (auto integration : context.integrations) {
         integration->reconnect();
         const char *commandTopic = integration->getCommandTopic();
-        Serial.println(commandTopic);
+        Logger.println(commandTopic);
         if(commandTopic == nullptr) {
           continue;
         }
@@ -125,29 +122,29 @@ void ClientSM::setUp() {
   NStateMachine<ClientSygnals, ClientContext>::setUp();
   auto & mqttClient = context.mqttClient;
   mqttClient.onSubscribe([](uint16_t packetId, uint8_t qos){
-    Serial.println("Subscribe acknowledged.");
-    Serial.print("  packetId: ");
-    Serial.println(packetId);
-    Serial.print("  qos: ");
-    Serial.println(qos);
+    Logger.println("Subscribe acknowledged.");
+    Logger.print("  packetId: ");
+    Logger.println((uint)packetId);
+    Logger.print("  qos: ");
+    Logger.println((uint)qos);
   });
   mqttClient.onConnect([this](bool sessionPresent) {
-    Serial.println("onConnect");
+    Logger.println("onConnect");
     dispatch(MqttConnected, nullptr);
   });
   mqttClient.onDisconnect([this](AsyncMqttClientDisconnectReason reason){
-    Serial.print("onDisconnected: ");
-    Serial.println((int8_t)reason);
+    Logger.print("onDisconnected: ");
+    Logger.println((char)reason);
     dispatch(MqttDisconnected, nullptr);
   });
   mqttClient.onMessage([this](char* topic, char* payload, AsyncMqttClientMessageProperties properties, size_t length, size_t index, size_t total){
     char * buffer = new char[length + 1];
     strncpy(buffer, payload, length); 
     buffer[length] = '\0'; // Null terminator used to terminate the char array
-    Serial.print("Message arrived on topic: [");
-    Serial.print(topic);
-    Serial.print("], ");
-    Serial.println(buffer);
+    Logger.print("Message arrived on topic: [");
+    Logger.print(topic);
+    Logger.print("], ");
+    Logger.println(buffer);
 
     for (auto integration : context.integrations) {
       const char *const msCommandTopic = integration->getCommandTopic();

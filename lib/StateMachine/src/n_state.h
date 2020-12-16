@@ -108,7 +108,6 @@ template<class Sygnal, class Context>
 void NStateMachine<Sygnal, Context>::setUp() {
   currentState = initialState;
   dispatch(sygnals.initialize, nullptr);
-  Serial.println(sygnals.initialize);
 }
 
 template<class Sygnal, class Context>

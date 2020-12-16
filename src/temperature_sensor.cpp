@@ -1,4 +1,5 @@
 #include "temperature_sensor.h"
+#include "logger.h"
 
 TS_Context::TS_Context(int pPin) : pin(pPin), wire(pPin), celsius(22) {
 }
@@ -26,34 +27,34 @@ TS_State *searchForAddresses(TS_State *self,
   switch (sygnal) {
   case TS_Initialize: {
     machine.setStateTimeout(10);
-    Serial.println("Searching");
+    Logger.println("Searching");
     if (!wire.search(addr)) {
-      Serial.println("No more addresses.");
-      Serial.println();
+      Logger.println("No more addresses.");
+      Logger.println();
       return new TS_State(&reseting);
     }
 
     if (OneWire::crc8(addr, 7) != addr[7]) {
-      Serial.println("CRC is not valid!");
+      Logger.println("CRC is not valid!");
       return new TS_State(&searchForAddresses);
     }
 
     // the first ROM byte indicates which chip
     switch (addr[0]) {
     case 0x10:
-      Serial.println("  Chip = DS18S20"); // or old DS1820
+      Logger.println("  Chip = DS18S20"); // or old DS1820
       state.type_s = 1;
       break;
     case 0x28:
-      Serial.println("  Chip = DS18B20");
+      Logger.println("  Chip = DS18B20");
       state.type_s = 0;
       break;
     case 0x22:
-      Serial.println("  Chip = DS1822");
+      Logger.println("  Chip = DS1822");
       state.type_s = 0;
       break;
     default:
-      Serial.println("Device is not a DS18x20 family device.");
+      Logger.println("Device is not a DS18x20 family device.");
       return new TS_State(&searchForAddresses);
     }
     return new TS_State(&writing);
@@ -74,7 +75,7 @@ TS_State *reseting(TS_State *self, StateMachineHandle<TS_Context> &machine,
   case TS_Initialize: {
     machine.setStateTimeout(250);
     wire.reset_search();
-    Serial.println("reset search");
+    Logger.println("reset search");
     return self;
   }
   case TS_Timeout: {
@@ -117,17 +118,17 @@ TS_State *processing(TS_State *self, StateMachineHandle<TS_Context> &machine,
     wire.select(state.addr);
     wire.write(0xBE); // Read Scratchpad
 
-    Serial.print("  Data = ");
+    Logger.print("  Data = ");
     Serial.print(present, HEX);
-    Serial.print(" ");
+    Logger.print(" ");
     for (byte i = 0; i < 9; i++) { // we need 9 bytes
       data[i] = wire.read();
       Serial.print(data[i], HEX);
-      Serial.print(" ");
+      Logger.print(" ");
     }
-    Serial.print(" CRC=");
-    Serial.print(OneWire::crc8(data, 8), HEX);
-    Serial.println();
+    Logger.print(" CRC=");
+    Logger.print(OneWire::crc8(data, 8), HEX);
+    Logger.println();
 
     // Convert the data to actual temperature
     // because the result is a 16 bit signed integer, it should

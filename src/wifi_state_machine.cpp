@@ -1,4 +1,5 @@
 #include "wifi_state_machine.h"
+#include <logger.h>
 
 MyWiFiState * setupWifi(MyWiFiState * self, StateMachineHandle<WifiContext> & machine, const WiFiSygnal & sygnal) {
   auto & wifiInfo = machine.state.wifiInfo;
@@ -7,9 +8,9 @@ MyWiFiState * setupWifi(MyWiFiState * self, StateMachineHandle<WifiContext> & ma
   case InitializeWifi:
     delay(10);
     // We start by connecting to a WiFi network
-    Serial.println();
-    Serial.print("Connecting to ");
-    Serial.println(wifiInfo.ssid);
+    Logger.println();
+    Logger.print("Connecting to ");
+    Logger.println(wifiInfo.ssid);
     WiFi.softAP(wifiInfo.softApSsid, wifiInfo.password);
     WiFi.begin(wifiInfo.ssid, wifiInfo.password);
     return new MyWiFiState(&waitingWifi);
@@ -26,15 +27,15 @@ MyWiFiState * waitingWifi(MyWiFiState * self, StateMachineHandle<WifiContext> & 
       machine.setStateTimeout(10000);
     case TickWifi:
       if (WiFi.status() != WL_CONNECTED) {
-        Serial.print(".");
+        Logger.print(".");
         return self;
       }
       return self;
     case ConnectedToWiFi:
-      Serial.println("");
-      Serial.println("WiFi connected");
-      Serial.println("IP address: ");
-      Serial.println(WiFi.localIP());
+      Logger.println("");
+      Logger.println("WiFi connected");
+      Logger.println("IP address: ");
+      Logger.println(WiFi.localIP());
       return new MyWiFiState(&working);
     case TimeoutWifi: {
       return new MyWiFiState(&setupWifi);
@@ -71,12 +72,11 @@ void WiFiSM::setUp() {
   NStateMachine<WiFiSygnal, WifiContext>::setUp();
   auto & WiFi = context.WiFi;
   connectedHandler = WiFi.onStationModeGotIP([this](const WiFiEventStationModeGotIP & event) {
-    Serial.println("onStationModeGotIP");
+    Logger.println("onStationModeGotIP");
     dispatch(ConnectedToWiFi, nullptr);
   });
   disconnectedHandler = WiFi.onStationModeDisconnected([this](const WiFiEventStationModeDisconnected & event) {
-    Serial.print("wifi disconnected: ");
-    Serial.println(event.reason);
+    Logger.printf("wifi disconnected: %u\n", event.reason);
     dispatch(DisconnectedFromWifi, nullptr);
   });
 }
