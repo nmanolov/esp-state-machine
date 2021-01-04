@@ -76,6 +76,7 @@ TS_State *reseting(TS_State *self, StateMachineHandle<TS_Context> &machine,
     machine.setStateTimeout(250);
     wire.reset_search();
     Logger.println("reset search");
+    machine.forceLoop();
     return self;
   }
   case TS_Timeout: {
