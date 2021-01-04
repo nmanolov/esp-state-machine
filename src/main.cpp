@@ -7,6 +7,7 @@
 #include "switches.h"
 #include "temperature_sensor.h"
 #include "thermostat.h"
+#include "hvac.h"
 #include "time.h"
 #include "wifi_state_machine.h"
 #include <Arduino.h>
@@ -45,15 +46,15 @@ TS_Context ts_context(D6);
 TemperatureSensor sensor(ts_context);
 OutputPin relayPin(D7);
 
-Thermostat thermostat(ts_context, sensor, relayPin, THERMOSTAT_THRESHOLD);
+Thermostat thermostat(ts_context, sensor, relayPin, THERMOSTAT_TARGET);
 
 AsyncMqttClient client;
 // PlaybackSwitch ms(client, "playback", melody);
 // RepeatSwitch rs(client, "repeat", melody);
 
-ThermostatSensor ts(client, THERMOSTAT_NAME, thermostat);
+HVAC hvac(client, THERMOSTAT_NAME, thermostat);
 // PinSwitch ps(client, "led", LED_BUILTIN, true);
-std::list<Integration *> integrations = {&ts /*&ps, &ts, &ms, &rs*/};
+std::list<Integration *> integrations = {&hvac /*&ps, &ts, &ms, &rs*/};
 WifiInfo wifiInfo = {WIFI_NETWORK, WIFI_AP_NAME, WIFI_PASSWORD};
 MqttClientInfo mqttClientInfo = {
     IPAddress(MQTT_BROCKER_ADDRESS),

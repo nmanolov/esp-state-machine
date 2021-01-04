@@ -17,8 +17,6 @@ class Sensor : public Integration {
     const char * baseType() const;
     virtual void propagateState();
     void propagateConfig(bool = true);
-    void propagateMessage(const char *, const char *);
-    char * createSubTopic(const char *, const char * = "") const;
 };
 
 class ThermostatSensor : public Sensor, public Observer<Thermostat> {

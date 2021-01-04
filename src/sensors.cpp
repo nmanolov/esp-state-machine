@@ -13,18 +13,6 @@ bool Sensor::handleCommand(const char * command) {
   return false;
 }
 
-char * Sensor::createSubTopic(const char * subtopic, const char * nameSuffix) const {
-  char * topic = new char[strlen(baseTopic()) + strlen(subtopic) + 2];
-  sprintf(topic, "%s%s/%s", baseTopic(), nameSuffix, subtopic);
-  return topic;
-}
-
-void Sensor::propagateMessage(const char * subtopic, const char * message) {
-  const char * topic = createSubTopic(subtopic);
-  publishMessage(topic, message);
-  delete[] topic;
-}
-
 const char * Sensor::baseType() const {
   return "sensor";
 }
@@ -34,12 +22,12 @@ static const char * ConfigMessageTemplate = "{\
 \"~\": \"homeassistant/sensor/%s\",\
 \"stat_t\": \"~/state\",\
 \"name\": \"%s\",\
-\"device\": {\
-  \"identifiers\": \"echo1\",\
-  \"manufacturer\": \"Niki\",\
+\"dev\": {\
+  \"ids\": \"echo1\",\
+  \"mf\": \"Niki\",\
   \"name\": \"Cat feeder\",\
-  \"sw_version\": \"0.0.23\",\
-  \"model\": \"retro\"\
+  \"sw\": \"0.0.23\",\
+  \"mdl\": \"retro\"\
   }\
 }";
   const unsigned int len = strlen(ConfigMessageTemplate) - 4 + 2 * strlen(name);
@@ -56,9 +44,7 @@ const char * Sensor::getCommandTopic() const {
   return nullptr;
 }
 
-ThermostatSensor::ThermostatSensor(AsyncMqttClient & client, const char * pName, Thermostat & pMelody) : Sensor(client, pName), m(pMelody) {
-  // m.addListener(*this);
-}
+ThermostatSensor::ThermostatSensor(AsyncMqttClient & client, const char * pName, Thermostat & pMelody) : Sensor(client, pName), m(pMelody) { }
 
 ThermostatSensor::~ThermostatSensor() {
   m.removeListener(*this);
@@ -77,16 +63,16 @@ static const char * ConfigMessageTemperatureTemplate = "{\
 \"~\": \"homeassistant/sensor/%s\",\
 \"stat_t\": \"~/state\",\
 \"name\": \"%s\",\
-\"device_class\":\"temperature\",\
-\"unit_of_measurement\": \"°C\",\
-\"value_template\": \"{{value_json.temperature}}\"\
+\"dev_cla\":\"temperature\",\
+\"unit_of_meas\": \"°C\",\
+\"val_tpl\": \"{{value_json.temperature}}\"\
 }";
 
   unsigned int len = strlen(ConfigMessageTemperatureTemplate) - 4 + 2 * strlen(name);
   char * message = new char[len + 1];
   sprintf(message, ConfigMessageTemperatureTemplate, name, name);
 
-  char * configTopic = createSubTopic("config", "T");
+  const char * configTopic = createSubTopic("config", "T");
   publishMessage(configTopic, message, len, retain);
   delete[] configTopic;
   delete[] message;
@@ -95,7 +81,7 @@ static const char * ConfigMessageTemperatureTemplate = "{\
 \"~\": \"homeassistant/sensor/%s\",\
 \"stat_t\": \"~/state\",\
 \"name\": \"%s\",\
-\"value_template\": \"{{value_json.state}}\"\
+\"val_tpl\": \"{{value_json.state}}\"\
 }";
 
   len = strlen(ConfigMessageStateTemplate) - 4 + 2 * strlen(name);
