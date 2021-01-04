@@ -153,9 +153,10 @@ TS_State *processing(TS_State *self, StateMachineHandle<TS_Context> &machine,
         raw = raw & ~1; // 11 bit res, 375 ms
       //// default is 12 bit resolution, 750 ms conversion time
     }
-    float celsius = (float)raw / 16.0;
+    const float celsius = (float)raw / 16.0;
 
     state.setTemperature(celsius);
+    Logger.printf("Current temperature: %f\n\r", celsius);
 
     return self;
   }
