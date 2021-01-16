@@ -1,22 +1,9 @@
 #ifndef thermostat_h_
 #define thermostat_h_
 
-#include "temperature_sensor.h"
+#include "./temperature_sensor.h"
 #include <tickable.h>
-
-class OutputPin : public Tickable, public Observable<OutputPin> {
-public:
-  OutputPin(const byte, const bool = false);
-  void tick();
-  void setUp();
-  void turnOn();
-  void turnOff();
-  bool getState() const;
-
-private:
-  byte pin;
-  bool invert;
-};
+#include "output_pin.h"
 
 class Thermostat : public Tickable, public Observable<Thermostat>, public Observer<TS_Context> {
 public:

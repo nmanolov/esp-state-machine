@@ -1,9 +1,8 @@
 #ifndef switches_h_
 #define switches_h_
 
-#include "observer.h"
-#include "integration.h"
 #include "melody.h"
+#include "integration.h"
 
 class Switch : public Integration {
   public:
@@ -44,18 +43,6 @@ class RepeatSwitch : public MelodySwitch {
     void turnOn();
     void turnOff();
     bool getState() const;
-};
-
-class PinSwitch : public Switch {
-  public:
-    PinSwitch(AsyncMqttClient &, const char *, const byte, const bool = false);
-    void turnOn();
-    void turnOff();
-    bool getState() const;
-    void setUp();
-  private:
-    byte pin;
-    bool invert;
 };
 
 #endif

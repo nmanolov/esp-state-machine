@@ -1,5 +1,5 @@
-#include "temperature_sensor.h"
-#include "logger.h"
+#include "device/temperature_sensor.h"
+#include "util/logger/logger.h"
 
 TS_Context::TS_Context(int pPin) : pin(pPin), wire(pPin), celsius(22) {
 }

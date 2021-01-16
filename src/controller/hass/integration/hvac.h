@@ -1,10 +1,8 @@
 #ifndef hvac_h_
 #define hvac_h
 
-#include <integration.h>
-#include <AsyncMqttClient.h>
-#include "observer.h"
-#include "thermostat.h"
+#include "integration.h"
+#include "device/thermostat.h"
 
 class HVAC : public Integration, public Observer<Thermostat> {
 public:

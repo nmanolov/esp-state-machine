@@ -1,4 +1,4 @@
-#include "command.h"
+#include "serial_command.h"
 #include <Arduino.h>
 
 Command::Command(Melody & pM) : melody(pM) {}

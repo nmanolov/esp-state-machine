@@ -2,7 +2,7 @@
 #define client_state_machine_h_
 
 #include "n_state.h"
-#include "switches.h"
+#include "integration/integration.h"
 #include <list>
 #include <AsyncMqttClient.h>
 

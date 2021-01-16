@@ -3,8 +3,9 @@
 
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
-#include <logger.h>
 #include <tickable.h>
+
+#include "logger.h"
 
 class TelnetLogger : public LoggerClass {
 public:

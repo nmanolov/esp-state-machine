@@ -1,46 +1,21 @@
 
-#include "button.h"
-#include "command.h"
-#include "finite_state_machine.h"
-#include "mqtt_client_state_machine.h"
-#include "sensors.h"
-#include "switches.h"
-#include "temperature_sensor.h"
-#include "thermostat.h"
-#include "hvac.h"
-#include "time.h"
-#include "wifi_state_machine.h"
+#include "device/thermostat.h"
+
+#include "controller/hass/mqtt_client_state_machine.h"
+#include "controller/hass/integration/sensor.h"
+#include "controller/hass/integration/switch.h"
+#include "controller/hass/integration/thermostat_sensor.h"
+#include "controller/hass/integration/hvac.h"
+
+#include "util/wifi_state_machine.h"
+#include "util/ota/ota.h"
+#include "util/logger/telnet_logger.h"
+
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
 #include <composition.h>
 #include <list>
-#include <logger.h>
-#include <n_state.h>
-#include <ota.h>
-#include <telnet_logger.h>
 
-#include "pitches.h"
-
-// int melodyTones[] = {
-//   NOTE_C4, NOTE_D4, NOTE_E4, NOTE_F4,
-//   NOTE_G4, NOTE_G4, NOTE_G4,
-//   NOTE_G4, NOTE_F4, NOTE_E4, NOTE_D4,
-//   NOTE_C4,
-//   NOTE_C4,
-//   0, 0, 0, 0,
-// };
-
-// // note durations: 4 = quarter note, 8 = eighth note, etc.:
-// int noteDurations[] = {
-//   4, 4, 4, 4,
-//   4, 4, 2,
-//   4, 4, 4, 4,
-//   2, 2,
-//   1, 1, 1, 1
-// };
-// int Sound = D7;
-// Melody melody(Sound, melodyTones, noteDurations, 17, 1000, true);
-// Command command(melody);
 
 TS_Context ts_context(D6);
 TemperatureSensor sensor(ts_context);
@@ -49,12 +24,10 @@ OutputPin relayPin(D7);
 Thermostat thermostat(ts_context, sensor, relayPin, THERMOSTAT_TARGET);
 
 AsyncMqttClient client;
-// PlaybackSwitch ms(client, "playback", melody);
-// RepeatSwitch rs(client, "repeat", melody);
 
 HVAC hvac(client, THERMOSTAT_NAME, thermostat);
-// PinSwitch ps(client, "led", LED_BUILTIN, true);
-std::list<Integration *> integrations = {&hvac /*&ps, &ts, &ms, &rs*/};
+std::list<Integration *> integrations = { &hvac };
+
 WifiInfo wifiInfo = {WIFI_NETWORK, WIFI_AP_NAME, WIFI_PASSWORD};
 MqttClientInfo mqttClientInfo = {
     IPAddress(MQTT_BROCKER_ADDRESS),
@@ -69,9 +42,8 @@ ClientContext cs = {
     mqttClientInfo,
 };
 ClientSM clientStateMachine(cs);
-// // TimeContext tc;
-// // TimeStateMachine tsm(tc);
-Composition internals = {&clientStateMachine /*, &tsm*/};
+
+Composition internals = { &clientStateMachine };
 WifiContext wifiContext = {
     WiFi,
     wifiInfo,

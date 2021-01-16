@@ -1,21 +1,6 @@
 #include "thermostat.h"
 #include <Arduino.h>
-#include <logger.h>
-
-OutputPin::OutputPin(const byte pinNumber, const bool pInvert)
-    : pin(pinNumber), invert(pInvert) {}
-
-void OutputPin::turnOn() { digitalWrite(pin, invert ^ HIGH); }
-
-void OutputPin::turnOff() { digitalWrite(pin, invert ^ LOW); }
-
-bool OutputPin::getState() const {
-  bool value = digitalRead(pin);
-  return invert ^ value;
-}
-
-void OutputPin::setUp() { pinMode(pin, OUTPUT); }
-void OutputPin::tick() {}
+#include "util/logger/logger.h"
 
 Thermostat::Thermostat(TS_Context &pContext, TemperatureSensor &pTs,
                        OutputPin &pPin, float pTarget)

@@ -1,6 +1,5 @@
 #include "hvac.h"
-#include <Arduino.h>
-#include <logger.h> 
+#include "util/logger/logger.h"
 
 HVAC::HVAC(AsyncMqttClient & pClient, const char * pName, Thermostat & pThermostat):
   Integration(pClient, pName, true), t(pThermostat) {}

@@ -1,5 +1,5 @@
-#include <ota.h>
-#include <logger.h>
+#include "./ota.h"
+#include "util/logger/logger.h"
 
 OTA::OTA(ArduinoOTAClass &pArduinoOta, const OTA_Options &pOptions)
     : ArduinoOTA(pArduinoOta), options(pOptions) {}

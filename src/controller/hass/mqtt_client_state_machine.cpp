@@ -1,6 +1,6 @@
 #include "mqtt_client_state_machine.h"
 #include <algorithm>
-#include <logger.h>
+#include "util/logger/logger.h"
 
 ClientContext::ClientContext(AsyncMqttClient &pAsyncMqttClient,
                              std::list<Integration *> &pIntegrations,

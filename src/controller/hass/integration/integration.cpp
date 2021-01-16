@@ -1,6 +1,6 @@
 #include "integration.h"
 
-Integration::Integration(AsyncMqttClient & pClient, const char * pName, const bool pHasWill) : client(pClient), bT(nullptr), mHasWill(pHasWill) {
+Integration::Integration(AsyncMqttClient & pClient, const char * pName, const bool pHasWill) : client(pClient), mHasWill(pHasWill), bT(nullptr) {
   int len = strlen(pName);
   name = new char[len + 1];
   strcpy(name, pName);
