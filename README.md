@@ -7,6 +7,14 @@ This project aims in the middle. It introduces two useful abstractions that allo
 - `Tickable` - abstraction for everything that should "do something" in the main loop.
 - `Satate Machine` - has some state, receives sygnals, changes the state and this changes trigger side effects
 
+## Examples
+- The hello world of automation [blynky](./lib/StateMachine/examples/blinky.ino) with a State machine.
+- Toggle light with a button [toggly](./lib/StateMachine/examples/toggle_light.ino) with a state machine.
+- Play a melody on a speaker [here](./lib/devices/examples/1_melody.cpp).
+- Control repeat and playback of the melody over mqtt from home assistant [here](./examples/1_melody_with_integrations.cpp).
+
+- The current [main.cpp](./src/main.cpp) is what I have deployed 3 places at home: MQTT enabled "HVAC", that controls a heating element via relay and aims for a configurable over mqtt target temperature.
+
 Having these two, and corresponding descendants, I feel confident I can express most interesting home automation needs.
 For example a garage could be represented as:
 - States: CLOSED, OPENING, OPEN, CLOSING, STOPED_IN_THE_MIDDLE
@@ -16,7 +24,7 @@ The project got a little sidetracked with all the things I wanted to achieve for
 - Home Assistant integration via MQTT: autodiscovery, reading temperature sensors, commanding a heating hvac.
 - OTA, as the heating elements aren't accessible: roof, and pit
 - remote logging
-- NTP time 
+- NTP time
 
 
 ## TODO
